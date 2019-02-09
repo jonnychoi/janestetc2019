@@ -10,6 +10,7 @@ from __future__ import print_function
 import sys
 import socket
 import json
+from time import sleep
 
 # ~~~~~============== CONFIGURATION  ==============~~~~~
 # replace REPLACEME with your team name!
@@ -81,7 +82,29 @@ def main():
     # time for every read_from_exchange() response.
     # Since many write messages generate marketdata, this will cause an
     # exponential explosion in pending messages. Please, don't do that!
+    # print("The exchange replied:", hello_from_exchange, file=sys.stderr)
+    exchange = connect()
+    write_to_exchange(exchange, {"type": "hello", "team": team_name.upper()})
+    hello_from_exchange = read_from_exchange(exchange)
+    # A common mistake people make is to call write_to_exchange() > 1
+    # time for every read_from_exchange() response.
+    # Since many write messages generate marketdata, this will cause an
+    # exponential explosion in pending messages. Please, don't do that!
     print("The exchange replied:", hello_from_exchange, file=sys.stderr)
-
+    #    do('buy', u'BOND', 1000, 1, exchange)
+    print_from_exchange(exchange)
+    stock = u'BOND'
+    fair_price = 1000
+    while True:
+        data = read_from_exchange(exchange)
+        print(data)
+        if u'symbol' in data and u'sell' in data and data[u'symbol'] == stock:
+            buy, sell = data[u'buy'], data[u'sell']
+            avg_sell = int(avg(sells))
+            avg_buy = int(avg(buys))
+            if avg_buy < fair_price:
+                do('buy', stock, avg_buy, 1, exchange)
+            if avg_sell > fair_price:
+                do('sell', stock, avg_sell, 1, exchange)
 if __name__ == "__main__":
     main()
