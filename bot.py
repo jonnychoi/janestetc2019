@@ -17,14 +17,14 @@ from time import sleep
 team_name="THEREVENGERS"
 # This variable dictates whether or not the bot is connecting to the prod
 # or test exchange. Be careful with this switch!
-test_mode = True
+test_mode = False
 
 # This setting changes which test exchange is connected to.
 # 0 is prod-like
 # 1 is slower
 # 2 is empty
 test_exchange_index=1
-prod_exchange_hostname="production"
+prod_exchange_hostname="slower"
 
 port=25000 + (test_exchange_index if test_mode else 0)
 exchange_hostname = "test-exch-" + team_name if test_mode else prod_exchange_hostname
@@ -55,11 +55,6 @@ def send(option, sym, price, size, exchange):
     print(req)
     write_to_exchange(exchange, req)
 
-def avg(lst):
-    if len(lst) == 0:
-        return -1
-    return sum([l[0] * l[1] for l in lst]) / (sum([l[1] for l in lst]) + 0.0)
-
 def add_action(symbol, option, price, size, exchange):
     global id_num
     id_num += 1
@@ -83,7 +78,19 @@ def cancel_action(exchange):
     print(request)
     write_to_exchange(exchange, request)
 
-#write functions for sums, averages, etc
+def avg(lst):
+    if len(lst) == 0:
+        return -1
+    return sum([l[0] * l[1] for l in lst]) / (sum([l[1] for l in lst]) + 0.0)
+
+def etf_running_avg(mat, lst):
+    lst = [avg(lst), sum([l[1] for l in lst])]
+    mat.append(lst)
+    if len(mat) > 5:
+        del mat[0]
+
+def weighted_sum(weights, vals):
+    return sum([weights[k] * vals[k] for k in vals.keys()])
 
 # ~~~~~============== MAIN LOOP ==============~~~~~
 
@@ -106,18 +113,20 @@ def main():
     # exponential explosion in pending messages. Please, don't do that!
     print("the exchange replied" , hello_from_exchange,file=sys.stderr)
     print_from_exchange(exchange)
-    stock = u'BOND'
-    fair_price = 1000
+    bond_price = 1000
+
     while True:
         data = read_from_exchange(exchange)
         print(data)
-        if u'symbol' in data and u'sell' in data and data[u'symbol'] == stock:
-            buy, sell = data[u'buy'], data[u'sell']
+        if u'TRADING_CLOSED' in data:
+            sys.exit(0)
+        if u'symbol' in data and u'sell' in data and data[u'symbol'] == bond:
+            buy, sell = data[u'buy'], data[u'sell'] 
             avg_sell = int(avg(sell))
             avg_buy = int(avg(buy))
-            if avg_sell > fair_price:
-                send('sell', stock, avg_sell, 1, exchange)
-            if avg_buy < fair_price:
-                send('buy', stock, avg_buy, 1, exchange)
+            if avg_sell > bond_price:
+                send('sell', bond, avg_sell, 1, exchange)
+            if avg_buy < bond_price:
+                send('buy', bond, avg_buy, 1, exchange)
 if __name__ == "__main__":
     main()
