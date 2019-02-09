@@ -46,6 +46,7 @@ def print_from_exchange(exchange):
     print(read_from_exchange(exchange))
 
 id_num = 0
+position = 0
 
 def send(option, sym, price, size, exchange):
     global id_num
@@ -95,6 +96,7 @@ wfc = 'WFC'
 xlf = 'XLF'
 
 def main():
+    global position
     exchange = connect()
     write_to_exchange(exchange, {"type": "hello", "team": team_name.upper()})
     hello_from_exchange = read_from_exchange(exchange)
@@ -113,9 +115,9 @@ def main():
             buy, sell = data[u'buy'], data[u'sell']
             avg_sell = int(avg(sell))
             avg_buy = int(avg(buy))
-            if avg_buy < fair_price:
-                send('buy', stock, avg_buy, 1, exchange)
             if avg_sell > fair_price:
                 send('sell', stock, avg_sell, 1, exchange)
+            if avg_buy < fair_price:
+                send('buy', stock, avg_buy, 1, exchange)
 if __name__ == "__main__":
     main()
