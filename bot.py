@@ -47,7 +47,7 @@ def print_from_exchange(exchange):
 
 id_num = 0
 
-def do(option, sym, price, size, exchange):
+def send(option, sym, price, size, exchange):
     global id_num
     req = {"type": "add", "orderid_num": id_num, "symbol": sym, "dir": option.upper(), "price": price, "size": size}
     id_num += 1
@@ -120,11 +120,11 @@ def main():
         print(data)
         if u'symbol' in data and u'sell' in data and data[u'symbol'] == stock:
             buy, sell = data[u'buy'], data[u'sell']
-            avg_sell = int(avg(sells))
-            avg_buy = int(avg(buys))
+            avg_sell = int(avg(sell))
+            avg_buy = int(avg(buy))
             if avg_buy < fair_price:
-                do('buy', stock, avg_buy, 1, exchange)
+                send('buy', stock, avg_buy, 1, exchange)
             if avg_sell > fair_price:
-                do('sell', stock, avg_sell, 1, exchange)
+                send('sell', stock, avg_sell, 1, exchange)
 if __name__ == "__main__":
     main()
