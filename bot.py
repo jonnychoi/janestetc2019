@@ -17,7 +17,7 @@ from time import sleep
 team_name="THEREVENGERS"
 # This variable dictates whether or not the bot is connecting to the prod
 # or test exchange. Be careful with this switch!
-test_mode = False
+test_mode = True
 
 # This setting changes which test exchange is connected to.
 # 0 is prod-like
@@ -100,6 +100,7 @@ gs = 'GS'
 ms = 'MS'
 wfc = 'WFC'
 xlf = 'XLF'
+count_dic = {bond: 0, valbz: 0, vale: 0, gs: 0, ms: 0, wfc: 0, xlf: 0, vale: 0, valbz: 0}
 
 def main():
     exchange = connect()
@@ -112,12 +113,14 @@ def main():
     print("the exchange replied" , hello_from_exchange,file=sys.stderr)
     print_from_exchange(exchange)
     bond_price = 1000
+    valbz_vale_buys = {valbz: 0, vale: 0}
+    valbz_vale_sells = {valbz: 0, vale: 0}
 
     while True:
         data = read_from_exchange(exchange)
         print(data)
         if u'error' in data and data[u'error'] == u'TRADING_CLOSED':
-            sys.exit(0)
+            quit()
         if u'symbol' in data and u'sell' in data and data[u'symbol'] == bond:
             buy, sell = data[u'buy'], data[u'sell'] 
             avg_sell = int(avg(sell))
@@ -126,5 +129,41 @@ def main():
                 send('sell', bond, avg_sell, 1, exchange)
             if avg_buy < bond_price:
                 send('buy', bond, avg_buy, 1, exchange)
+        if data and data[u'type'] == 'fill':
+            count_dic[data[u'symbol']] += int(data[u'size']) * (-1 if data[u'dir'] == 'SELL' else 1)
+        elif data and data[u'type'] == 'trade' and data[u'symbol'] in valbz_vale_buys.keys():
+            valbz_vale_buys[data[u'symbol']] = int(data[u'price'])
+            valbz_vale_sells[data[u'symbol']] = int(data[u'price'])
+        elif data and u'symbol' in data and u'sell' in data:
+            buys, sells = data[u'buy'], data[u'sell']
+            avg_sell = int(avg(sells))
+            avg_buy = int(avg(buys))
+            if False: #etf stocks case initial
+                print()
+            elif False: #etf stocks case where none have value 0
+                print()
+            elif data[u'symbol'] in valbz_vale_buys.keys():
+                number = 8
+                diff = 11
+                if count_dic[vale] > number:
+                    convert(exchange, vale, count_dic[vale], 'sell')
+                elif count_dic[vale] < -number:
+                    convert(exchange, vale, -count_dic[vale], 'buy')
+                if count_dic[valbz] > number:
+                    convert(exchange, valbz, count_dic[valbz], 'sell')
+                elif count_dic[valbz] < -number:
+                    convert(exchange, valbz, count_dic[valbz], 'buy')
+                if valbz_vale_buys[valbz] > diff + valbz_vale_buys[vale]:
+                    send('buy', vale, valbz_vale_buys[vale], 1, exchange)
+                    send('sell', valbz, valbz_vale_sells[valbz], 1, exchange)
+                elif valbz_vale_sells[vale] > diff + valbz_vale_sells[valbz]:
+                    send('sell', vale, valbz_vale_sells[vale], 1, exchange)
+                    send('buy', valbz, valbz_vale_buys[valbz], 1, exchange)
+                if valbz_vale_buys[vale] > diff + valbz_vale_sells[valbz]:
+                    send('buy', valbz, valbz_vale_buys[babz], 1, exchange)
+                    send('sell', vale, valbz_vale_sells[baba], 1, exchange)
+                elif valbz_vale_sells[valbz] > diff + valbz_vale_sells[vale]:
+                    send('sell', valbz, valbz_vale_sells[valbz], 1, exchange)
+                    send('buy', vale, valbz_vale_buys[vale], 1, exchange)
 if __name__ == "__main__":
     main()
