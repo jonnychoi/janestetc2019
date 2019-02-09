@@ -116,7 +116,7 @@ def main():
     while True:
         data = read_from_exchange(exchange)
         print(data)
-        if u'TRADING_CLOSED' in data:
+        if data[u'error'] == u'TRADING_CLOSED':
             sys.exit(0)
         if u'symbol' in data and u'sell' in data and data[u'symbol'] == bond:
             buy, sell = data[u'buy'], data[u'sell'] 
