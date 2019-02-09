@@ -24,7 +24,7 @@ test_mode = False
 # 1 is slower
 # 2 is empty
 test_exchange_index=1
-prod_exchange_hostname="slower"
+prod_exchange_hostname="production"
 
 port=25000 + (test_exchange_index if test_mode else 0)
 exchange_hostname = "test-exch-" + team_name if test_mode else prod_exchange_hostname
@@ -46,7 +46,6 @@ def print_from_exchange(exchange):
     print(read_from_exchange(exchange))
 
 id_num = 0
-position = 0
 
 def send(option, sym, price, size, exchange):
     global id_num
@@ -103,7 +102,6 @@ wfc = 'WFC'
 xlf = 'XLF'
 
 def main():
-    global position
     exchange = connect()
     write_to_exchange(exchange, {"type": "hello", "team": team_name.upper()})
     hello_from_exchange = read_from_exchange(exchange)
