@@ -94,8 +94,8 @@ def weighted_sum(weights, vals):
 # ~~~~~============== MAIN LOOP ==============~~~~~
 
 bond = 'BOND'
-valbz = 'VALBZ'
-vale = 'VALE'
+vale = 'VALBZ'
+valbz = 'VALE'
 gs = 'GS'
 ms = 'MS'
 wfc = 'WFC'
