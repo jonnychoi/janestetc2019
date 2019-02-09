@@ -98,18 +98,6 @@ wfc = 'WFC'
 xlf = 'XLF'
 count_dic = {bond: 0, valbz: 0, vale: 0, gs: 0, ms: 0, wfc: 0, xlf: 0, vale: 0, valbz: 0}
 
-def allnonzero(dic):
-    boolean = True
-    for k, v in dic.items():
-        if v == 0:
-            boolean = False
-        if !boolean:
-            return False
-    return boolean
-
-def weighted_sum(weights, vals):
-    return sum([weights[k] * vals[k] for k in vals.keys()])
-
 
 def main():
     exchange = connect()
@@ -124,15 +112,6 @@ def main():
     fair_price = 1000
     valbz_vale_buys = {valbz: 0, vale: 0}
     valbz_vale_sells = {valbz: 0, vale: 0}
-
-    # etfs = [bond, gs, ms, wfc]
-    etf_proportions = {bond: 0.3, gs: 0.2, ms: 0.3, wfc: 0.2}
-    etfs = etf_proportions.keys()
-    etf_buys = {bond: 0, gs: 0, ms: 0, wfc: 0}
-    etf_sells = {bond: 0, gs: 0, ms: 0, wfc: 0}
-
-
-    
     while True:
         data = read_from_exchange(exchange)
         if data and data[u'type'] == 'fill':
@@ -144,48 +123,33 @@ def main():
             buys, sells = data[u'buy'], data[u'sell']
             avg_sell = int(avg(sells))
             avg_buy = int(avg(buys))
-            if data['symbol'] in etfs:
-                etf_buys[data['symbol']] = avg_buy
-                etf_sells[data['symbol']] = avg_sell
-                if data['symbol'] == bond:
-                    if avg_buy < bond_fair_price:
-                        send('buy', bond, avg_buy, 1, exchange)
-                    if avg_sell > bond_fair_price:
-                        send('sell', bond, avg_sell, 1, exchange)
-            elif data['symbol'] == xlf and allnonzero(etf_buys):
-                xlf_sell = weighted_sum(etf_proportions, etf_sells)
-                xlf_buy = weighted_sum(etf_proportions, etf_buys)
-                if avg_buy < xlf_buy - 10:
-                    send('buy', xlf, avg_buy, 1, exchange)
-                if avg_sell > xlf_buy + 10:
-                    send('sell', xlf, avg_sell, 1, exchange)
+            if False: #etf stocks case initial
+                print()
+            elif False: #etf stocks case where none have value 0
+                print()
+            elif data[u'symbol'] in valbz_vale_buys.keys():
+                number = 8
+                diff = 11
+                if count_dic[vale] > number:
+                    convert(exchange, vale, count_dic[vale], 'sell')
+                elif count_dic[vale] < -number:
+                    convert(exchange, vale, -count_dic[vale], 'buy')
+                if count_dic[valbz] > number:
+                    convert(exchange, valbz, count_dic[valbz], 'sell')
+                elif count_dic[valbz] < -number:
+                    convert(exchange, valbz, count_dic[valbz], 'buy')
+                if valbz_vale_buys[valbz] > diff + valbz_vale_buys[vale]:
+                    do('buy', vale, valbz_vale_buys[vale], 1, exchange)
+                    do('sell', valbz, valbz_vale_sells[valbz], 1, exchange)
+                elif valbz_vale_sells[vale] > diff + valbz_vale_sells[valbz]:
+                    do('sell', vale, valbz_vale_sells[vale], 1, exchange)
+                    do('buy', valbz, valbz_vale_buys[valbz], 1, exchange)
 
-            # if False: #etf stocks case initial
-            #     print()
-            # elif False: #etf stocks case where none have value 0
-            #     print()
-            # elif data[u'symbol'] in valbz_vale_buys.keys():
-            #     number = 8
-            #     diff = 11
-            #     if count_dic[vale] > number:
-            #         convert(exchange, vale, count_dic[vale], 'sell')
-            #     elif count_dic[vale] < -number:
-            #         convert(exchange, vale, -count_dic[vale], 'buy')
-            #     if count_dic[valbz] > number:
-            #         convert(exchange, valbz, count_dic[valbz], 'sell')
-            #     elif count_dic[valbz] < -number:
-            #         convert(exchange, valbz, count_dic[valbz], 'buy')
-            #     if valbz_vale_buys[valbz] > diff + valbz_vale_buys[vale]:
-            #         do('buy', vale, valbz_vale_buys[vale], 1, exchange)
-            #         do('sell', valbz, valbz_vale_sells[valbz], 1, exchange)
-            #     elif valbz_vale_sells[vale] > diff + valbz_vale_sells[valbz]:
-            #         do('sell', vale, valbz_vale_sells[vale], 1, exchange)
-            #         do('buy', valbz, valbz_vale_buys[valbz], 1, exchange)
-            #     if valbz_vale_buys[vale] > diff + valbz_vale_buys[valbz]:
-            #         do('buy', valbz, valbz_vale_buys[babz], 1, exchange)
-            #         do('sell', vale, valbz_vale_sells[baba], 1, exchange)
-            #     elif valbz_vale_sells[valbz] > diff + valbz_vale_sells[vale]:
-            #         do('sell', valbz, valbz_vale_sells[valbz], 1, exchange)
-            #         do('buy', vale, valbz_vale_buys[vale], 1, exchange)
+                if valbz_vale_buys[vale] > diff + valbz_vale_sells[valbz]:
+                    do('buy', valbz, valbz_vale_buys[babz], 1, exchange)
+                    do('sell', vale, valbz_vale_sells[baba], 1, exchange)
+                elif valbz_vale_sells[valbz] > diff + valbz_vale_sells[vale]:
+                    do('sell', valbz, valbz_vale_sells[valbz], 1, exchange)
+                    do('buy', vale, valbz_vale_buys[vale], 1, exchange)
 if __name__ == "__main__":
     main()
