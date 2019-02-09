@@ -159,7 +159,7 @@ def main():
                 elif valbz_vale_sells[vale] > diff + valbz_vale_sells[valbz]:
                     send('sell', vale, valbz_vale_sells[vale], 1, exchange)
                     send('buy', valbz, valbz_vale_buys[valbz], 1, exchange)
-                if valbz_vale_buys[vale] > diff + valbz_vale_sells[valbz]:
+                if valbz_vale_buys[vale] > diff + valbz_vale_buys[valbz]:
                     send('buy', valbz, valbz_vale_buys[babz], 1, exchange)
                     send('sell', vale, valbz_vale_sells[baba], 1, exchange)
                 elif valbz_vale_sells[valbz] > diff + valbz_vale_sells[vale]:
