@@ -62,7 +62,7 @@ def avg(lst):
 def add_action(symbol, option, price, size, exchange):
     global id_num
     id_num += 1
-    request = {"type": "add", "orderid_num": id_num, "symbol", symbol,
+    request = {"type": "add", "order_id": id_num, "symbol": symbol,
     "dir": option, "price": price, "size": size}
     print(request)
     write_to_exchange(exchange, request)
@@ -70,7 +70,7 @@ def add_action(symbol, option, price, size, exchange):
 def convert_action(exchange, symbol, size, option):
     global id_num
     id_num += 1
-    request = {"type": "convert", "orderid_num", id_num, "symbol": symbol, "dir": option,
+    request = {"type": "convert", "order_id": id_num, "symbol": symbol, "dir": option,
     "size": size}
     print(request)
     write_to_exchange(exchange, request)
@@ -78,13 +78,21 @@ def convert_action(exchange, symbol, size, option):
 def cancel_action(exchange):
     global id_num
     id_num += 1
-    request = {"type": "cancel", "orderid_num", id_num}
+    request = {"type": "cancel", "order_id": id_num}
     print(request)
     write_to_exchange(exchange, request)
 
 #write functions for sums, averages, etc
 
 # ~~~~~============== MAIN LOOP ==============~~~~~
+
+bond = 'BOND'
+valbz = 'VALBZ'
+vale = 'VALE'
+gs = 'GS'
+ms = 'MS'
+wfc = 'WFC'
+xlf = 'XLF'
 
 def main():
     exchange = connect()
