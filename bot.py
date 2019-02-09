@@ -94,8 +94,8 @@ def weighted_sum(weights, vals):
 # ~~~~~============== MAIN LOOP ==============~~~~~
 
 bond = 'BOND'
-vale = 'VALBZ'
-valbz = 'VALE'
+valbz = 'VALBZ'
+vale = 'VALE'
 gs = 'GS'
 ms = 'MS'
 wfc = 'WFC'
@@ -146,13 +146,13 @@ def main():
                 number = 8
                 diff = 11
                 if count_dic[vale] > number:
-                    convert(exchange, vale, count_dic[vale], 'sell')
+                    convert_action(exchange, vale, count_dic[vale], 'sell')
                 elif count_dic[vale] < -number:
-                    convert(exchange, vale, -count_dic[vale], 'buy')
+                    convert_action(exchange, vale, -count_dic[vale], 'buy')
                 if count_dic[valbz] > number:
-                    convert(exchange, valbz, count_dic[valbz], 'sell')
+                    convert_action(exchange, valbz, count_dic[valbz], 'sell')
                 elif count_dic[valbz] < -number:
-                    convert(exchange, valbz, count_dic[valbz], 'buy')
+                    convert_action(exchange, valbz, count_dic[valbz], 'buy')
                 if valbz_vale_buys[valbz] > diff + valbz_vale_buys[vale]:
                     send('buy', vale, valbz_vale_buys[vale], 1, exchange)
                     send('sell', valbz, valbz_vale_sells[valbz], 1, exchange)
