@@ -10,6 +10,7 @@ from __future__ import print_function
 import sys
 import socket
 import json
+from time import sleep
 
 # ~~~~~============== CONFIGURATION  ==============~~~~~
 # replace REPLACEME with your team name!
@@ -46,6 +47,18 @@ def print_from_exchange(exchange):
 
 id_num = 0
 
+def send(option, sym, price, size, exchange):
+    global id_num
+    req = {"type": "add", "order_id": id_num, "symbol": sym, "dir": option.upper(), "price": price, "size": size}
+    id_num += 1
+    print(req)
+    write_to_exchange(exchange, req)
+
+def avg(lst):
+    if len(lst) == 0:
+        return -1
+    return sum([l[0] * l[1] for l in lst]) / (sum([l[1] for l in lst]) + 0.0)
+
 def add_action(symbol, option, price, size, exchange):
     global id_num
     id_num += 1
@@ -73,29 +86,73 @@ def cancel_action(exchange):
 
 # ~~~~~============== MAIN LOOP ==============~~~~~
 
-bond = 'BOND'
-valbz = 'VALBZ'
-vale = 'VALE'
-gs = 'GS'
-ms = 'MS'
-wfc = 'WFC'
-xlf = 'XLF'
+bond = u'BOND'
+valbz = u'VALBZ'
+vale = u'VALE'
+gs = u'GS'
+ms = u'MS'
+wfc = u'WFC'
+xlf = u'XLF'
 
 def main():
     exchange = connect()
     write_to_exchange(exchange, {"type": "hello", "team": team_name.upper()})
     hello_from_exchange = read_from_exchange(exchange)
+    print("the exchange replied" , hello_from_exchange,file=sys.stderr)
     # A common mistake people make is to call write_to_exchange() > 1
     # time for every read_from_exchange() response.
     # Since many write messages generate marketdata, this will cause an
     # exponential explosion in pending messages. Please, don't do that!
-
-    print("The exchange replied:", hello_from_exchange, file=sys.stderr)
-
-    # bond_fair_price = 1000
+    # print("The exchange replied:", hello_from_exchange, file=sys.stderr)
+    print_from_exchange(exchange)
+    fair_price = 1000
+    adrs = [vale, valbz]
+    buyadr = {p: 0 for p in adrs}
+    selladr = {p: 0 for p in adrs}
+    counts = {p: 0 for p in adrs}
     while True:
-        ex_data = read_from_exchange(exchange)
-        print(ex_data)
+        data = read_from_exchange(exchange)
+        if data and data[u'type'] == 'fill':
+            counts[data[u'symbol']] += int(data[u'size']) * (-1 if data[u'dir'] == 'sell' else 1)
+        elif data and data[u'type'] == 'trade' and data[u'symbol'] in pair_stocks:
+            buyadr[data[u'symbol']] = int(data[u'price'])
+            selladr[data[u'symbol']] = int(data[u'price'])
+        if u'symbol' in data and u'sell' in data and data[u'symbol'] == bond:
+            buy, sell = data[u'buy'], data[u'sell']
+            avg_sell = int(avg(sell))
+            avg_buy = int(avg(buy))
+            if avg_buy < fair_price:
+                send('buy', stock, avg_buy, 1, exchange)
+            if avg_sell > fair_price:
+                send('sell', stock, avg_sell, 1, exchange)
+        elif data[u'symbol'] in adrs:
+            n = 8
+            margin = 11
+            #hedging
+            if counts[vale] > n:
+                convert_action(exchange, vale, counts[vale], 'sell')
+            elif counts[vale] < -n:
+                convert_action(exchange, vale, -counts[vale], 'buy')
+            if counts[valbz] > n:
+                convert_action(exchange, valbz, counts[valbz], 'sell')
+            elif counts[valbz] < -n:
+                convert_action(exchange, valbz, -counts[valbz], 'buy')
+
+            if buyadr[valbz] > margin + buyadr[vale]:
+                add_action('buy', vale, buyadr[vale], 1, exchange)
+                add_action('sell', valbz, selladr[valbz], 1, exchange)
+            elif selladr[vale] > margin + selladr[valbz]:
+                add_action('sell', vale, selladr[vale], 1, exchange)
+                add_action('buy', valbz, buyadr[valbz], 1, exchange)
+
+            if buyadr[vale] > margin + buyadr[valbz]:
+                add_action('buy', valbz, buyadr[valbz], 1, exchange)
+                add_action('sell', vale, selladr[vale], 1, exchange)
+            elif selladr[valbz] > margin + selladr[vale]:
+                add_action('sell', valbz, selladr[valbz], 1, exchange)
+                add_action('buy', vale, buyadr[vale], 1, exchange)
+
+
 
 if __name__ == "__main__":
     main()
