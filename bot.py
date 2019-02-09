@@ -23,7 +23,7 @@ test_mode = True
 # 0 is prod-like
 # 1 is slower
 # 2 is empty
-test_exchange_index=0
+test_exchange_index=1
 prod_exchange_hostname="production"
 
 port=25000 + (test_exchange_index if test_mode else 0)
@@ -160,8 +160,8 @@ def main():
                     send('sell', vale, valbz_vale_sells[vale], 1, exchange)
                     send('buy', valbz, valbz_vale_buys[valbz], 1, exchange)
                 if valbz_vale_buys[vale] > diff + valbz_vale_buys[valbz]:
-                    send('buy', valbz, valbz_vale_buys[babz], 1, exchange)
-                    send('sell', vale, valbz_vale_sells[baba], 1, exchange)
+                    send('buy', valbz, valbz_vale_buys[valbz], 1, exchange)
+                    send('sell', vale, valbz_vale_sells[vale], 1, exchange)
                 elif valbz_vale_sells[valbz] > diff + valbz_vale_sells[vale]:
                     send('sell', valbz, valbz_vale_sells[valbz], 1, exchange)
                     send('buy', vale, valbz_vale_buys[vale], 1, exchange)
