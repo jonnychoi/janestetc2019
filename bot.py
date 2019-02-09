@@ -23,7 +23,7 @@ test_mode = True
 # 0 is prod-like
 # 1 is slower
 # 2 is empty
-test_exchange_index=2
+test_exchange_index=1
 prod_exchange_hostname="production"
 
 port=25000 + (test_exchange_index if test_mode else 0)
@@ -98,12 +98,11 @@ def main():
     exchange = connect()
     write_to_exchange(exchange, {"type": "hello", "team": team_name.upper()})
     hello_from_exchange = read_from_exchange(exchange)
-    print("the exchange replied" , hello_from_exchange,file=sys.stderr)
     # A common mistake people make is to call write_to_exchange() > 1
     # time for every read_from_exchange() response.
     # Since many write messages generate marketdata, this will cause an
     # exponential explosion in pending messages. Please, don't do that!
-    # print("The exchange replied:", hello_from_exchange, file=sys.stderr)
+    print("the exchange replied" , hello_from_exchange,file=sys.stderr)
     print_from_exchange(exchange)
     stock = u'BOND'
     fair_price = 1000
