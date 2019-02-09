@@ -49,7 +49,7 @@ id_num = 0
 
 def send(option, sym, price, size, exchange):
     global id_num
-    req = {"type": "add", "orderid_num": id_num, "symbol": sym, "dir": option.upper(), "price": price, "size": size}
+    req = {"type": "add", "order_id": id_num, "symbol": sym, "dir": option.upper(), "price": price, "size": size}
     id_num += 1
     print(req)
     write_to_exchange(exchange, req)
