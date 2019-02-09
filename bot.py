@@ -49,7 +49,7 @@ id_num = 0
 def add_action(symbol, option, price, size, exchange):
     global id_num
     id_num += 1
-    request = {"type": "add", "order_id": id_num, "symbol", symbol,
+    request = {"type": "add", "order_id": id_num, "symbol": symbol,
     "dir": option, "price": price, "size": size}
     print(request)
     write_to_exchange(exchange, request)
@@ -57,7 +57,7 @@ def add_action(symbol, option, price, size, exchange):
 def convert_action(exchange, symbol, size, option):
     global id_num
     id_num += 1
-    request = {"type": "convert", "order_id", id_num, "symbol": symbol, "dir": option,
+    request = {"type": "convert", "order_id": id_num, "symbol": symbol, "dir": option,
     "size": size}
     print(request)
     write_to_exchange(exchange, request)
@@ -65,13 +65,21 @@ def convert_action(exchange, symbol, size, option):
 def cancel_action(exchange):
     global id_num
     id_num += 1
-    request = {"type": "cancel", "order_id", id_num}
+    request = {"type": "cancel", "order_id": id_num}
     print(request)
     write_to_exchange(exchange, request)
 
 #write functions for sums, averages, etc
 
 # ~~~~~============== MAIN LOOP ==============~~~~~
+
+bond = 'BOND'
+valbz = 'VALBZ'
+vale = 'VALE'
+gs = 'GS'
+ms = 'MS'
+wfc = 'WFC'
+xlf = 'XLF'
 
 def main():
     exchange = connect()
@@ -81,7 +89,13 @@ def main():
     # time for every read_from_exchange() response.
     # Since many write messages generate marketdata, this will cause an
     # exponential explosion in pending messages. Please, don't do that!
+
     print("The exchange replied:", hello_from_exchange, file=sys.stderr)
+
+    # bond_fair_price = 1000
+    while True:
+        ex_data = read_from_exchange(exchange)
+        print(ex_data)
 
 if __name__ == "__main__":
     main()
