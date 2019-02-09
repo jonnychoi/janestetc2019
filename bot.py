@@ -14,7 +14,7 @@ from time import sleep
 
 # ~~~~~============== CONFIGURATION  ==============~~~~~
 # replace REPLACEME with your team name!
-team_name="THEREVENGERS"
+team_name="therevengers"
 # This variable dictates whether or not the bot is connecting to the prod
 # or test exchange. Be careful with this switch!
 test_mode = True
@@ -23,7 +23,7 @@ test_mode = True
 # 0 is prod-like
 # 1 is slower
 # 2 is empty
-test_exchange_index=2
+test_exchange_index=0
 prod_exchange_hostname="production"
 
 port=25000 + (test_exchange_index if test_mode else 0)
@@ -125,7 +125,7 @@ def main():
                 send('buy', stock, avg_buy, 1, exchange)
             if avg_sell > fair_price:
                 send('sell', stock, avg_sell, 1, exchange)
-        elif data[u'symbol'] in adrs:
+        if data[u'symbol'] in adrs: 
             n = 8
             margin = 11
             #hedging
@@ -137,14 +137,12 @@ def main():
                 convert_action(exchange, valbz, counts[valbz], 'sell')
             elif counts[valbz] < -n:
                 convert_action(exchange, valbz, -counts[valbz], 'buy')
-
             if buyadr[valbz] > margin + buyadr[vale]:
                 add_action('buy', vale, buyadr[vale], 1, exchange)
                 add_action('sell', valbz, selladr[valbz], 1, exchange)
             elif selladr[vale] > margin + selladr[valbz]:
                 add_action('sell', vale, selladr[vale], 1, exchange)
                 add_action('buy', valbz, buyadr[valbz], 1, exchange)
-
             if buyadr[vale] > margin + buyadr[valbz]:
                 add_action('buy', valbz, buyadr[valbz], 1, exchange)
                 add_action('sell', vale, selladr[vale], 1, exchange)
