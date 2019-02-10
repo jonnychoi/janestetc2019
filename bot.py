@@ -115,33 +115,69 @@ def main():
     bond_price = 1000
     valbz_vale_buys = {valbz: 0, vale: 0}
     valbz_vale_sells = {valbz: 0, vale: 0}
-
+    etf_buys = {bond: 0, gs: 0, ms: 0, wfc: 0}
+    etf_sells = {bond: 0, gs: 0, ms: 0, wfc: 0}
+    etf_proportions = {bond: 0.3, gs: 0.2, ms: 0.3, wfc: 0.2}
     while True:
+        # elif data and u'symbol' in data and u'sell' in data:
+        #     buys, sells = data[u'buy'], data[u'sell']
+        #     avg_sell = int(avg(sells))
+        #     avg_buy = int(avg(buys))
+            # if data['symbol'] in etfs:
+            #     etf_buys[data['symbol']] = avg_buy
+            #     etf_sells[data['symbol']] = avg_sell
+            #     if data['symbol'] == bond:
+            #         if avg_buy < bond_fair_price:
+            #             send('buy', bond, avg_buy, 1, exchange)
+            #         if avg_sell > bond_fair_price:
+            #             send('sell', bond, avg_sell, 1, exchange)
+            # elif data['symbol'] == xlf and allnonzero(etf_buys):
+            #     xlf_sell = weighted_sum(etf_proportions, etf_sells)
+            #     xlf_buy = weighted_sum(etf_proportions, etf_buys)
+            #     if avg_buy < xlf_buy - 10:
+            #         send('buy', xlf, avg_buy, 1, exchange)
+            #     if avg_sell > xlf_buy + 10:
+            #         send('sell', xlf, avg_sell, 1, exchange)
         data = read_from_exchange(exchange)
         print(data)
         if u'error' in data and data[u'error'] == u'TRADING_CLOSED':
             quit()
-        if u'symbol' in data and u'sell' in data and data[u'symbol'] == bond:
-            buy, sell = data[u'buy'], data[u'sell'] 
-            avg_sell = int(avg(sell))
-            avg_buy = int(avg(buy))
-            if avg_sell > bond_price:
-                send('sell', bond, avg_sell, 1, exchange)
-            if avg_buy < bond_price:
-                send('buy', bond, avg_buy, 1, exchange)
+            # if avg_sell > bond_price:
+            #     send('sell', bond, avg_sell, 1, exchange)
+            # if avg_buy < bond_price:
+            #     send('buy', bond, avg_buy, 1, exchange)
         if data and data[u'type'] == 'fill':
             count_dic[data[u'symbol']] += int(data[u'size']) * (-1 if data[u'dir'] == 'SELL' else 1)
         elif data and data[u'type'] == 'trade' and data[u'symbol'] in valbz_vale_buys.keys():
             valbz_vale_buys[data[u'symbol']] = int(data[u'price'])
             valbz_vale_sells[data[u'symbol']] = int(data[u'price'])
-        elif data and u'symbol' in data and u'sell' in data:
-            buys, sells = data[u'buy'], data[u'sell']
-            avg_sell = int(avg(sells))
-            avg_buy = int(avg(buys))
-            if False: #etf stocks case initial
-                print()
-            elif False: #etf stocks case where none have value 0
-                print()
+        elif u'symbol' in data and u'sell' in data:
+            buy, sell = data[u'buy'], data[u'sell'] 
+            avg_sell = int(avg(sell))
+            avg_buy = int(avg(buy))
+            if data['symbol'] in etfs:
+                etf_buys[data['symbol']] = avg_buy
+                etf_sells[data['symbol']] = avg_sell
+                if data['symbol'] == bond:
+                    if avg_buy < bond_price:
+                        send('buy', bond, avg_buy, 1, exchange)
+                    if avg_sell > bond_price:
+                        send('sell', bond, avg_sell, 1, exchange)
+            elif data['symbol'] == xlf and allnonzero(etf_buys):
+                xlf_sell = weighted_sum(etf_proportions, etf_sells)
+                xlf_buy = weighted_sum(etf_proportions, etf_buys)
+                if avg_buy < xlf_buy - 10:
+                    send('buy', xlf, avg_buy, 1, exchange)
+                if avg_sell > xlf_buy + 10:
+                    send('sell', xlf, avg_sell, 1, exchange)
+        # elif data and u'symbol' in data and u'sell' in data:
+        #     buys, sells = data[u'buy'], data[u'sell']
+        #     avg_sell = int(avg(sells))
+        #     avg_buy = int(avg(buys))
+        #     if False: #etf stocks case initial
+        #         print()
+        #     elif False: #etf stocks case where none have value 0
+        #         print()
             elif data[u'symbol'] in valbz_vale_buys.keys():
                 number = 8
                 diff = 11
