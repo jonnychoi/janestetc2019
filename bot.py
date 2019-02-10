@@ -102,6 +102,15 @@ wfc = 'WFC'
 xlf = 'XLF'
 count_dic = {bond: 0, valbz: 0, vale: 0, gs: 0, ms: 0, wfc: 0, xlf: 0, vale: 0, valbz: 0}
 
+def allnonzero(dic):
+    boolean = True
+    for k, v in dic.keys():
+        if v == 0:
+            boolean = False
+        if !boolean:
+            return False
+    return True
+
 def main():
     exchange = connect()
     write_to_exchange(exchange, {"type": "hello", "team": team_name.upper()})
@@ -155,7 +164,7 @@ def main():
             buy, sell = data[u'buy'], data[u'sell'] 
             avg_sell = int(avg(sell))
             avg_buy = int(avg(buy))
-            if data['symbol'] in etfs:
+            if data['symbol'] in etf_proportions.keys():
                 etf_buys[data['symbol']] = avg_buy
                 etf_sells[data['symbol']] = avg_sell
                 if data['symbol'] == bond:
