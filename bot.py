@@ -10,7 +10,7 @@ from __future__ import print_function
 import sys
 import socket
 import json
-from time import sleep
+from time import sleep, time
 
 # ~~~~~============== CONFIGURATION  ==============~~~~~
 # replace REPLACEME with your team name!
@@ -101,6 +101,7 @@ ms = 'MS'
 wfc = 'WFC'
 xlf = 'XLF'
 count_dic = {bond: 0, valbz: 0, vale: 0, gs: 0, ms: 0, wfc: 0, xlf: 0, vale: 0, valbz: 0}
+convert_time = 0
 
 def allnonzero(dic):
     boolean = True
@@ -112,6 +113,7 @@ def allnonzero(dic):
     return True
 
 def main():
+    convert_time = 0
     exchange = connect()
     write_to_exchange(exchange, {"type": "hello", "team": team_name.upper()})
     hello_from_exchange = read_from_exchange(exchange)
@@ -226,5 +228,12 @@ def main():
                 elif valbz_vale_sells[valbz] > diff + valbz_vale_sells[vale]:
                     send('sell', valbz, valbz_vale_sells[valbz], 1, exchange)
                     send('buy', vale, valbz_vale_buys[vale], 1, exchange)
+        if time() - convert_time > 10:
+            if count_dic[xlf] > 70:
+                convert_action(exchange, xlf, 10, 'sell')
+            elif count_dic[xlf] < -70:
+                convert_action(exchange, xlf, 10, 'buy')
+        convert_time = time()
+
 if __name__ == "__main__":
     main()
