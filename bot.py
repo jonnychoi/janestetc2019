@@ -104,10 +104,10 @@ count_dic = {bond: 0, valbz: 0, vale: 0, gs: 0, ms: 0, wfc: 0, xlf: 0, vale: 0, 
 
 def allnonzero(dic):
     boolean = True
-    for k, v in dic.keys():
+    for k, v in dic.items():
         if v == 0:
             boolean = False
-        if !boolean:
+        if not boolean:
             return False
     return True
 
@@ -164,6 +164,22 @@ def main():
             buy, sell = data[u'buy'], data[u'sell'] 
             avg_sell = int(avg(sell))
             avg_buy = int(avg(buy))
+            if data['symbol'] in etf_proportions.keys():
+                etf_buys[data['symbol']] = avg_buy
+                etf_sells[data['symbol']] = avg_sell
+                if data['symbol'] == bond:
+                    if avg_buy < bond_price:
+                        send('buy', bond, avg_buy, 1, exchange)
+                    if avg_sell > bond_price:
+                        send('sell', bond, avg_sell, 1, exchange)
+            elif data['symbol'] == xlf and allnonzero(etf_buys):
+                xlf_sell = weighted_sum(etf_proportions, etf_sells)
+                xlf_buy = weighted_sum(etf_proportions, etf_buys)
+                if avg_buy < xlf_buy - 10:
+                    send('buy', xlf, avg_buy, 1, exchange)
+                if avg_sell > xlf_buy + 10:
+                    send('sell', xlf, avg_sell, 1, exchange)
+        elif u'symbol' in data:
             if data['symbol'] in etf_proportions.keys():
                 etf_buys[data['symbol']] = avg_buy
                 etf_sells[data['symbol']] = avg_sell
